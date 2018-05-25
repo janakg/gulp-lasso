@@ -1,6 +1,6 @@
 'use strict';
 var through = require('through2');
-var lasso = require('./lib/lasso/dist-compat');
+var lasso = require('lasso');
 var injector = require('./lib/html-injector');
 var fs = require('fs');
 var extend = require('raptor-util/extend');
