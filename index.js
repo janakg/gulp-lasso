@@ -1,11 +1,10 @@
 'use strict';
 var through = require('through2');
-var lasso = require('lasso');
+var lasso = require('./lib/lasso/dist-compat');
 var injector = require('./lib/html-injector');
-var gutil = require('gulp-util');
 var fs = require('fs');
 var extend = require('raptor-util/extend');
-var PluginError = gutil.PluginError;
+var PluginError = require('plugin-error');
 
 module.exports = function (options) {
     //Path to a JSON lasso configuration file
@@ -50,22 +49,26 @@ module.exports = function (options) {
         }
 
         var str = file.contents.toString();
-
         lasso.configure(config);
+
         lasso.lassoPage({
                 dependencies: dependencies,
                 name: name
             },
             function(err, lassoPageResult) {
-                // console.log('ERROR: ', err);
+                console.log("i am here2");
+
                 if (err) {
                     stream.emit('error', err);
                     return;
                 }
 
-                file.contents = new Buffer(injector.inject(str, lassoPageResult));
+                file.contents = new Buffer(injector.inject(str, lassoPageResult.getBodyHtml()));
                 cb(null, file);
             }
-        );
+        ).then(function(lassoPageResult) {
+          file.contents = new Buffer(injector.inject(str, lassoPageResult.getBodyHtml()));
+          cb(null, file);
+        })
     });
 };
